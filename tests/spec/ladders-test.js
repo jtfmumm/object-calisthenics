@@ -5,30 +5,6 @@ function testMethod(obj, method, message) {
 	console.log((obj[method].bind(obj))());
 }
 
-describe("ObjectLists", function() {
-	var ol = new oc.ObjectList();
-	var talker = {
-		talk: function(word) { console.log(word); }
-	}
-
-	var yeller = {
-		talk: function(word) { console.log(word.toUpperCase()); }
-	}
-
-	function isAnObject(x) {
-		return x && typeof x === 'object';
-	}
-
-	ol.append(talker);
-	ol.append(yeller);
-
-	it("can test every item against a predicate", function() {
-		expect(ol.every(isAnObject)).toBe(true);
-	});
-
-	ol.tellEach('talk', ['hello console!']);
-});
-
 describe("Names are ValueObjects", function() {
 	var name1 = new oc.Name('Jim');
 	var name2 = new oc.Name('Sally');
@@ -69,8 +45,6 @@ describe("Uids are ValueObjects", function() {
 	it("that can be tested for equality", function() {
 		expect(oc.areEqualValueObjects(uid1, uid2)).toBe(false);
 	});
-
-	console.log(new oc.Uid(10));
 });
 
 describe("Employers", function() {
@@ -81,7 +55,8 @@ describe("Employers", function() {
 	employer2.postJob('screenwriter', oc.JReq);
 	employer2.postJob('copyeditor', oc.ATS);
 
-	console.log("There are " + oc.jobList.count() + " jobs posted.");
+	var jobseeker = new oc.JobSeeker(new oc.FullName('Martha', 'Jones'));
+	jobseeker.applyToJob(oc.jobList.list[1]);
 
 	it("can list the jobs they posted", function() {
 		expect(employer.listJobs()).toBeDefined();
@@ -97,7 +72,7 @@ describe("Employers", function() {
 });
 
 describe("A jobseeker can", function() {
-	var jobseeker = new oc.JobSeeker(new oc.FullName(new oc.Name('Bob'), new oc.Name('Smith')));
+	var jobseeker = new oc.JobSeeker(new oc.FullName('Bob', 'Smith'));
 	jobseeker.createResume('resume data');
 	var testJob1 = new oc.JReq(new oc.Name('farmer'), new oc.Employer('Apple'));
 	var testJob2 = new oc.ATS(new oc.Name('advertiser'), new oc.Employer('Disney'));
@@ -122,6 +97,7 @@ describe("A jobseeker can", function() {
 	testMethod(jobseeker, 'listSavedJobs', 'jobseeker lists jobs saved');
 	
 	testMethod(jobseeker, 'listJobs', 'jobseeker lists all job');
+
 });
 
 describe("TheLadders", function() {
@@ -132,12 +108,12 @@ describe("TheLadders", function() {
 
 describe("FilterLists", function() {
 	var newJobName = new oc.Name('NEW JOB');
-	var newEmployerId = new oc.Uid(10);
-	var newJob = new oc.JReq(newJobName, newEmployerId);
+	var hasbro = new oc.Employer('Hasbro');
+	var newJob = new oc.JReq(newJobName, hasbro);
 	var nameFilter = new oc.Name('NEW JOB');
 	var filters = new oc.FilterList();
 	filters.append(nameFilter);
-	filters.append(new oc.Uid(10));
+	filters.append(hasbro);
 	var nameFilter2 = new oc.Name('wrong job');
 	var filters2 = new oc.FilterList();
 	filters2.append(nameFilter2);

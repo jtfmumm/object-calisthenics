@@ -86,9 +86,9 @@ var oc = (function() {
 		return report.display(TextReport);
 	};
 	Employer.prototype.listJobSeekersWhoApplied = function() {		
-		var fields = makeFieldNames(FullName, Job, FullDate);
+		var fields = makeFieldNames(FullName, Job, Employer, FullDate);
 		var report = new Report(fields);
-		var filters = makeFilterList(this);
+		var filters = makeFilterList();
 		jobApplicationList.addFields(report, filters);
 		return report.display(TextReport);
 	};
@@ -108,8 +108,7 @@ var oc = (function() {
 		return hasValueObject(this, filter);
 	};
 	JobSeeker.prototype.display = function(thisReport) {
-		this.fullName.displayFirstName(thisReport);
-		this.fullName.displayLastName(thisReport);
+		this.fullName.display(thisReport);
 	};
 	JobSeeker.prototype.createResume = function(resume) {
 		var thisResume = new Resume(resume, this);
@@ -128,8 +127,8 @@ var oc = (function() {
 	} 
 	JobSeeker.prototype.applyToJob = function(job, resume) {
 		var thisDate = new FullDate(generateDate());
-		var thisResume = resume || null;
-		var thisApplication = new JobApplication(job, this, resume, thisDate);
+		var thisResume = resume || new Resume();
+		var thisApplication = new JobApplication(job, this, thisResume, thisDate);
 		if (job.isValidApplication(thisApplication)) 
 			jobApplicationList.append(thisApplication);
 	};
@@ -148,7 +147,7 @@ var oc = (function() {
 		return report.display(TextReport);
 	};
 	JobSeeker.prototype.listJobsAppliedTo = function() {
-		var fields = makeFieldNames(Job, Employer, FullDate);
+		var fields = makeFieldNames(FullName, Job, Employer, FullDate);
 		var report = new Report(fields);
 		var filters = makeFilterList(this);
 		jobApplicationList.addFields(report, filters);
@@ -208,6 +207,7 @@ var oc = (function() {
 		return hasValueObject(this, filter);
 	};
 	JobApplication.prototype.display = function(thisReport) {
+		this.jobSeeker.display(thisReport);
 		this.job.display(thisReport);
 		this.thisDate.display(thisReport);
 	};	
@@ -475,7 +475,7 @@ var oc = (function() {
 	} 
 
 	function hasValueObject(obj, valueObject) {
-		var values = [false];
+		var values = [];
 		for (var property in obj) {
 			if (obj.hasOwnProperty(property)) 
 				values.push(obj[property].equals(valueObject));
