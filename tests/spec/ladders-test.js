@@ -77,9 +77,9 @@ describe("Employers", function() {
 	var employer = new oc.Employer('Microsoft');
 	employer.postJob('engineer', oc.JReq);
 	employer.postJob('boxer', oc.ATS);
-	var employer = new oc.Employer('Apple');
-	employer.postJob('screenwriter', oc.JReq);
-	employer.postJob('copyeditor', oc.ATS);
+	var employer2 = new oc.Employer('Apple');
+	employer2.postJob('screenwriter', oc.JReq);
+	employer2.postJob('copyeditor', oc.ATS);
 
 	console.log("There are " + oc.jobList.count() + " jobs posted.");
 

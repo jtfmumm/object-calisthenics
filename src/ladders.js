@@ -37,8 +37,8 @@ var oc = (function() {
 	Job.prototype.displayFieldName = function(report) {
 		report.addEntry('Job');
 	};
-	Job.prototype.equals = function(otherObject) {
-		return (this.constructor === otherObject.constructor) && (this.uid === otherObject.uid);
+	Job.prototype.equals = function(otherJob) {
+		return (otherJob.constructor === Job) && (this.uid === otherJob.uid);
 	};
 
 
@@ -81,19 +81,19 @@ var oc = (function() {
 	Employer.prototype.listJobs = function() {
 		var fields = makeFieldNames(Name, Employer);
 		var report = new Report(fields);
-		var filters = new FilterList(this);
+		var filters = makeFilterList(this);
 		jobList.addFields(report, filters);
 		return report.display(TextReport);
 	};
 	Employer.prototype.listJobSeekersWhoApplied = function() {		
 		var fields = makeFieldNames(FullName, Job, FullDate);
 		var report = new Report(fields);
-		var filters = new FilterList(this);
+		var filters = makeFilterList(this);
 		jobApplicationList.addFields(report, filters);
 		return report.display(TextReport);
 	};
-	Employer.prototype.equals = function(otherObject) {
-		return (this.constructor === otherObject.constructor) && (this.uid === otherObject.uid);
+	Employer.prototype.equals = function(otherEmployer) {
+		return (otherEmployer.constructor === Employer) && (this.uid === otherEmployer.uid);
 	};
 
 	var employerList = new ObjectList();
@@ -117,7 +117,7 @@ var oc = (function() {
 	};
 	JobSeeker.prototype.ownResumes = function() {
 		var theseResumes = new ObjectList();
-		var filters = new FilterList();
+		var filters = makeFilterList();
 		filters.append(this);
 		resumeList.tellEach('addToList', [filters, theseResumes]);
 		return theseResumes;
@@ -136,26 +136,26 @@ var oc = (function() {
 	JobSeeker.prototype.listJobs = function() {
 		var fields = makeFieldNames(Name, Employer);
 		var report = new Report(fields);
-		var filters = new FilterList();
+		var filters = makeFilterList();
 		jobList.addFields(report, filters);
 		return report.display(TextReport);
 	};
 	JobSeeker.prototype.listSavedJobs = function() {
 		var fields = makeFieldNames(Name, Employer);
 		var report = new Report(fields);
-		var filters = new FilterList(this);
+		var filters = makeFilterList(this);
 		savedJobsList.addFields(report, filters);
 		return report.display(TextReport);
 	};
 	JobSeeker.prototype.listJobsAppliedTo = function() {
 		var fields = makeFieldNames(Job, Employer, FullDate);
 		var report = new Report(fields);
-		var filters = new FilterList(this);
+		var filters = makeFilterList(this);
 		jobApplicationList.addFields(report, filters);
 		return report.display(TextReport);
 	};
-	JobSeeker.prototype.equals = function(otherObject) {
-		return (this.constructor === otherObject.constructor) && (this.uid === otherObject.uid);
+	JobSeeker.prototype.equals = function(otherJobSeeker) {
+		return (otherJobSeeker.constructor === JobSeeker) && (this.uid === otherJobSeeker.uid);
 	};
 
 	function SavedJob(job, jobSeeker) {
@@ -188,6 +188,11 @@ var oc = (function() {
 	Resume.prototype.display = function(thisReport) {
 		thisReport.addEntry(this.resume);
 	};
+	Resume.prototype.equals = function(otherResume) {
+		return this.constructor === otherResume.constructor 
+			&& this.resume === otherResume.resume 
+			&& this.jobSeeker === otherResume.jobSeeker;
+	};
 
 	var resumeList = new ObjectList();
 
@@ -209,8 +214,8 @@ var oc = (function() {
 	JobApplication.prototype.hasResume = function() {
 		return !!this.resume; 
 	};
-	JobApplication.prototype.equals = function(otherObject) {
-		return (this.constructor === otherObject.constructor) && (this.uid === otherObject.uid);
+	JobApplication.prototype.equals = function(otherJobApplication) {
+		return (otherJobApplication.constructor === JobApplication) && (this.uid === otherJobApplication.uid);
 	};
 
 	var jobApplicationList = new ObjectList();
@@ -346,8 +351,9 @@ var oc = (function() {
 	function ValueObject(data, fieldNameString) {
 		this.data = data;
 	}
-	ValueObject.prototype.equals = function(otherName) {
-		return this.data === otherName.data;
+	ValueObject.prototype.equals = function(otherValueObject) {
+		return this.constructor === otherValueObject.constructor 
+			&& this.data === otherValueObject.data;
 	};
 	ValueObject.prototype.display = function(report) {
 		report.addEntry(this.data);
@@ -451,7 +457,7 @@ var oc = (function() {
 	};
 	ObjectList.prototype.addFields = function(report, filterList) {
 		this.list.forEach(function(obj) {
-			if (filterList.filter(obj))
+			if (filterList.filter(obj)) 
 				report.addField(obj);
 		});
 	};
@@ -469,10 +475,10 @@ var oc = (function() {
 	} 
 
 	function hasValueObject(obj, valueObject) {
-		var values = [];
+		var values = [false];
 		for (var property in obj) {
 			if (obj.hasOwnProperty(property)) 
-				values.push(areEqualValueObjects(obj[property], valueObject));
+				values.push(obj[property].equals(valueObject));
 		}
 		return values.some(isTrue);
 	}
