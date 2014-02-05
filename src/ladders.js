@@ -30,8 +30,21 @@ var oc = (function() {
 	Job.prototype.passesFilter = function(filter) {
 		return hasValueObject(this, filter);
 	};
-	Job.prototype.addField = function(list) {
-		list.append(this.name);
+	Job.prototype.display = function(thisReport) {
+		this.name.display(thisReport);
+		this.employer.display(thisReport);
+	};
+	Job.prototype.displayFieldName = function(report) {
+		report.addEntry('Job');
+	};
+	Job.prototype.equals = function(otherObject) {
+		return (this.constructor === otherObject.constructor) && (this.uid === otherObject.uid);
+	};
+
+/*
+	Job.prototype.addField = function(report) {
+		this.name.display(report);
+		this.employer.addField(report);
 	};
 	Job.prototype.addToReport = function(thisReport, filterList, fieldNames) {
 		if (filterList.filter(this)) {
@@ -41,15 +54,7 @@ var oc = (function() {
 			thisReport.addEntries(theseFields);
 		}
 	};	
-	Job.prototype.display = function(thisReport) {
-		this.name.display(thisReport);
-	};
-	Job.prototype.displayFieldName = function(report) {
-		report.addEntry('Job');
-	};
-	Job.prototype.equals = function(otherObject) {
-		return (this.constructor === otherObject.constructor) && (this.uid === otherObject.uid);
-	};
+*/
 
 	function JReq(name, employer) {
 		Job.call(this, name, employer);
@@ -76,8 +81,8 @@ var oc = (function() {
 		this.name = new Name(name);
 		this.uid = new Uid(employerUidGenerator());
 	};
-	Employer.prototype.addField = function(list) {
-		list.append(this.name);
+	Employer.prototype.addField = function(report) {
+		report.addEntry(this.name);
 	};
 	Employer.prototype.display = function(thisReport) {
 		this.name.display(thisReport);
@@ -94,7 +99,9 @@ var oc = (function() {
 		var fields = makeFieldNames(Name, Employer);
 		var report = new Report(fields);
 		var filters = new FilterList(this);
-		return makeReport(jobList, report, filters, fields);
+		var theseFields = new FieldsList();
+		jobList.addFields(report, filters);
+		return report.display(TextReport);
 	};
 	Employer.prototype.listJobSeekersWhoApplied = function() {
 	};
@@ -218,9 +225,9 @@ var oc = (function() {
 	JobApplication.prototype.passesFilter = function(filter) {
 		return hasValueObject(this, filter);
 	};
-	JobApplication.prototype.addField = function(fieldName, list) {
-		var field = findValueObject(this, fieldName) || fieldName;
-		list.append(field);
+	JobApplication.prototype.addField = function(list) {
+		this.job.addField(list);
+		list.append(this.thisDate);
 	};
 	JobApplication.prototype.addToReport = function(thisReport, filterList, fieldNames) {
 		if (filterList.filter(this)) {
@@ -316,7 +323,7 @@ var oc = (function() {
 		});
 	};
 
-
+/*
 	function Report(fieldNames) {
 		this.table = fieldNames.generateTable();
 	};
@@ -336,14 +343,31 @@ var oc = (function() {
 		return this.table.display(format);
 	};
 
-	function makeReport(list, report, filters, fields) {
-		var reportParameters = [report, filters, fields];
-		list.tellEach('addToReport', reportParameters);
-
+	function makeReport(report, fieldNames) {
+		report.addEntries(fieldNames)
 		return report.display(TextReport);	
 	}
+*/
 
-
+	function Report(fieldNames) {
+		this.fieldNames = fieldNames;
+		this.fields = [];
+	}
+	Report.prototype.addFieldName = function(fieldName) {
+		this.fieldNames.push(fieldName);
+	};
+	Report.prototype.addField = function(field) {
+		this.fields.push(field);
+	};
+	Report.prototype.display = function(format) {
+		var thisReport = new format();
+		this.fieldNames.addFieldNamesToReport(thisReport);
+		this.fields.forEach(function(obj) {
+			obj.display(thisReport);
+			thisReport.nextLine();
+		});
+		return thisReport.display();		
+	}
 
 
 	function Row() {
@@ -511,6 +535,12 @@ var oc = (function() {
 	}; 
 	ObjectList.prototype.count = function() {
 		return this.list.length;
+	};
+	ObjectList.prototype.addFields = function(report, filterList) {
+		this.list.forEach(function(obj) {
+			if (filterList.filter(obj))
+				report.addField(obj);
+		});
 	};
 
 

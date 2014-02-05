@@ -104,7 +104,7 @@ describe("An employer's list of jobs", function() {
 	console.log(employer.listJobs());
 });
 
-describe("A jobseeker can", function() {
+xdescribe("A jobseeker can", function() {
 	var jobseeker = new oc.JobSeeker(new oc.FullName(new oc.Name('Bob'), new oc.Name('Smith')));
 	jobseeker.createResume('resume data');
 	var testJob1 = new oc.JReq(new oc.Name('farmer'), new oc.Employer('Apple'));
@@ -130,13 +130,13 @@ describe("A jobseeker can", function() {
 	console.log(jobseeker.listJobs());
 });
 
-describe("TheLadders", function() {
+xdescribe("TheLadders", function() {
 	it("can see how many jobs have been posted", function() {
 		expect(oc.TheLadders.jobCount()).toBe(4);
 	});
 });
 
-describe("FilterLists", function() {
+xdescribe("FilterLists", function() {
 	var newJobName = new oc.Name('NEW JOB');
 	var newEmployerId = new oc.Uid(10);
 	var newJob = new oc.JReq(newJobName, newEmployerId);
