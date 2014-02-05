@@ -80,9 +80,12 @@ describe("Uids are ValueObjects", function() {
 });
 
 describe("An employer's list of jobs", function() {
-	var employer = new oc.Employer();
+	var employer = new oc.Employer('Microsoft');
 	employer.postJob('engineer', oc.JReq);
 	employer.postJob('boxer', oc.ATS);
+	var employer = new oc.Employer('Apple');
+	employer.postJob('screenwriter', oc.JReq);
+	employer.postJob('copyeditor', oc.ATS);
 
 	console.log("There are " + oc.jobList.count() + " jobs posted.");
 
@@ -91,7 +94,7 @@ describe("An employer's list of jobs", function() {
 	});
 
 	it("should now have two items", function() {
-		expect(oc.jobList.count()).toBe(2);
+		expect(oc.jobList.count()).toBe(4);
 	});
 
 	it("should contain titles", function() {
@@ -104,8 +107,8 @@ describe("An employer's list of jobs", function() {
 describe("A jobseeker can", function() {
 	var jobseeker = new oc.JobSeeker(new oc.FullName(new oc.Name('Bob'), new oc.Name('Smith')));
 	jobseeker.createResume('resume data');
-	var testJob1 = new oc.JReq(new oc.Name('farmer'), new oc.Uid(15));
-	var testJob2 = new oc.ATS(new oc.Name('advertiser'), new oc.Uid(15));
+	var testJob1 = new oc.JReq(new oc.Name('farmer'), new oc.Employer('Apple'));
+	var testJob2 = new oc.ATS(new oc.Name('advertiser'), new oc.Employer('Disney'));
 	jobseeker.applyToJob(testJob1, new oc.Resume('resume 1'));
 	jobseeker.applyToJob(testJob2, new oc.Resume('resume 2'));
 
@@ -114,20 +117,22 @@ describe("A jobseeker can", function() {
 	});
 	console.log(jobseeker.listJobsAppliedTo());
 
-	var jobToSave1 = new oc.JReq(new oc.Name('astronaut'), new oc.Uid(17));
-	var jobToSave2 = new oc.ATS(new oc.Name('welder'), new oc.Uid(10));
+	var jobToSave1 = new oc.JReq(new oc.Name('astronaut'), new oc.Employer('Exxon'));
+	var jobToSave2 = new oc.ATS(new oc.Name('welder'), new oc.Employer('BevMo'));
 	jobseeker.saveJob(jobToSave1);
 	jobseeker.saveJob(jobToSave2);
 
 	it("list saved jobs", function() {
 		expect(jobseeker.listSavedJobs()).toBeDefined();
 	});
+	console.log(oc.savedJobsList);
 	console.log(jobseeker.listSavedJobs());
+	console.log(jobseeker.listJobs());
 });
 
 describe("TheLadders", function() {
 	it("can see how many jobs have been posted", function() {
-		expect(oc.TheLadders.jobCount()).toBe(2);
+		expect(oc.TheLadders.jobCount()).toBe(4);
 	});
 });
 
