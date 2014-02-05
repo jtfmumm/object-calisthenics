@@ -99,7 +99,6 @@ var oc = (function() {
 		var fields = makeFieldNames(Name, Employer);
 		var report = new Report(fields);
 		var filters = new FilterList(this);
-		var theseFields = new FieldsList();
 		jobList.addFields(report, filters);
 		return report.display(TextReport);
 	};
@@ -144,21 +143,24 @@ var oc = (function() {
 	};
 	JobSeeker.prototype.listJobs = function() {
 		var fields = makeFieldNames(Name, Employer);
-		var filters = makeFilterList();
-		var report = new Report(fields, filters);
-		return makeReport(jobList, report, filters, fields);		
+		var report = new Report(fields);
+		var filters = new FilterList();
+		jobList.addFields(report, filters);
+		return report.display(TextReport);
 	};
 	JobSeeker.prototype.listSavedJobs = function() {
 		var fields = makeFieldNames(Name, Employer);
 		var report = new Report(fields);
 		var filters = new FilterList(this);
-		return makeReport(savedJobsList, report, filters, fields);
+		savedJobsList.addFields(report, filters);
+		return report.display(TextReport);
 	};
 	JobSeeker.prototype.listJobsAppliedTo = function() {
-		var fields = makeFieldNames(Job, FullDate);
-		var filters = makeFilterList(this);
-		var report = new Report(fields, filters);
-		return makeReport(jobApplicationList, report, filters, fields);
+		var fields = makeFieldNames(Job, Employer, FullDate);
+		var report = new Report(fields);
+		var filters = new FilterList(this);
+		jobApplicationList.addFields(report, filters);
+		return report.display(TextReport);
 	};
 	JobSeeker.prototype.equals = function(otherObject) {
 		return (this.constructor === otherObject.constructor) && (this.uid === otherObject.uid);
@@ -170,6 +172,9 @@ var oc = (function() {
 	}
 	SavedJob.prototype.passesFilter = function(filter) {
 		return hasValueObject(this, filter);
+	};
+	SavedJob.prototype.display = function(thisReport) {
+		this.job.display(thisReport);
 	};
 	SavedJob.prototype.addField = function(fieldName, list) {
 		var field = findValueObject(this, fieldName) || fieldName;
@@ -224,6 +229,10 @@ var oc = (function() {
 	};	
 	JobApplication.prototype.passesFilter = function(filter) {
 		return hasValueObject(this, filter);
+	};
+	JobApplication.prototype.display = function(thisReport) {
+		this.job.display(thisReport);
+		this.thisDate.display(thisReport);
 	};
 	JobApplication.prototype.addField = function(list) {
 		this.job.addField(list);
