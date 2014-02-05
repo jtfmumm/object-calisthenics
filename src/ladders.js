@@ -41,20 +41,6 @@ var oc = (function() {
 		return (this.constructor === otherObject.constructor) && (this.uid === otherObject.uid);
 	};
 
-/*
-	Job.prototype.addField = function(report) {
-		this.name.display(report);
-		this.employer.addField(report);
-	};
-	Job.prototype.addToReport = function(thisReport, filterList, fieldNames) {
-		if (filterList.filter(this)) {
-			var theseFields = new FieldsList();
-			theseFields.append(this.name);
-			this.employer.addField(theseFields);
-			thisReport.addEntries(theseFields);
-		}
-	};	
-*/
 
 	function JReq(name, employer) {
 		Job.call(this, name, employer);
@@ -81,9 +67,6 @@ var oc = (function() {
 		this.name = new Name(name);
 		this.uid = new Uid(employerUidGenerator());
 	};
-	Employer.prototype.addField = function(report) {
-		report.addEntry(this.name);
-	};
 	Employer.prototype.display = function(thisReport) {
 		this.name.display(thisReport);
 	};
@@ -102,7 +85,12 @@ var oc = (function() {
 		jobList.addFields(report, filters);
 		return report.display(TextReport);
 	};
-	Employer.prototype.listJobSeekersWhoApplied = function() {
+	Employer.prototype.listJobSeekersWhoApplied = function() {		
+		var fields = makeFieldNames(FullName, Job, FullDate);
+		var report = new Report(fields);
+		var filters = new FilterList(this);
+		jobApplicationList.addFields(report, filters);
+		return report.display(TextReport);
 	};
 	Employer.prototype.equals = function(otherObject) {
 		return (this.constructor === otherObject.constructor) && (this.uid === otherObject.uid);
@@ -118,6 +106,10 @@ var oc = (function() {
 	}
 	JobSeeker.prototype.passesFilter = function(filter) {
 		return hasValueObject(this, filter);
+	};
+	JobSeeker.prototype.display = function(thisReport) {
+		this.fullName.displayFirstName(thisReport);
+		this.fullName.displayLastName(thisReport);
 	};
 	JobSeeker.prototype.createResume = function(resume) {
 		var thisResume = new Resume(resume, this);
@@ -175,17 +167,6 @@ var oc = (function() {
 	};
 	SavedJob.prototype.display = function(thisReport) {
 		this.job.display(thisReport);
-	};
-	SavedJob.prototype.addField = function(fieldName, list) {
-		var field = findValueObject(this, fieldName) || fieldName;
-		list.append(field);
-	};	
-	SavedJob.prototype.addToReport = function(thisReport, filterList) {
-		if (filterList.filter(this)) {
-			var nullFilterList = new FilterList();
-			var theseFields = new FieldsList();
-			this.job.addToReport(thisReport, nullFilterList);
-		}
 	};	
 
 	var jobSeekerList = new ObjectList();
@@ -204,18 +185,9 @@ var oc = (function() {
 	Resume.prototype.passesFilter = function(filter) {
 		return hasValueObject(this, filter);
 	};
-	Resume.prototype.addField = function(fieldName, list) {
-		var field = findValueObject(this, fieldName) || fieldName;
-		list.append(field);
+	Resume.prototype.display = function(thisReport) {
+		thisReport.addEntry(this.resume);
 	};
-	Resume.prototype.addToReport = function(thisReport, filterList, fieldNames) {
-		if (filterList.filter(this)) {
-			var self = this;
-			var theseFields = new FieldsList();
-			fieldNames.addFieldsToFieldsList(self, theseFields);
-			thisReport.addEntries(theseFields);
-		}
-	};	
 
 	var resumeList = new ObjectList();
 
@@ -233,18 +205,6 @@ var oc = (function() {
 	JobApplication.prototype.display = function(thisReport) {
 		this.job.display(thisReport);
 		this.thisDate.display(thisReport);
-	};
-	JobApplication.prototype.addField = function(list) {
-		this.job.addField(list);
-		list.append(this.thisDate);
-	};
-	JobApplication.prototype.addToReport = function(thisReport, filterList, fieldNames) {
-		if (filterList.filter(this)) {
-			var self = this;
-			var theseFields = new FieldsList();
-			fieldNames.addFieldsToFieldsList(self, theseFields);
-			thisReport.addEntries(theseFields);
-		}
 	};	
 	JobApplication.prototype.hasResume = function() {
 		return !!this.resume; 
@@ -332,31 +292,6 @@ var oc = (function() {
 		});
 	};
 
-/*
-	function Report(fieldNames) {
-		this.table = fieldNames.generateTable();
-	};
-	Report.prototype.addEntries = function(fieldsList) {
-		this.table.addRow(fieldsList);
-	};
- 	Report.prototype.addFieldName = function(field) {
-		this.table.addFieldName(field);
-	};
-	Report.prototype.addRow = function(fieldsList) {
-		this.table.addRow(fieldsList);		
-	};
-	Report.prototype.appendRow = function(row) {
-		this.table.addRow(row);
-	}
-	Report.prototype.display = function(format) {
-		return this.table.display(format);
-	};
-
-	function makeReport(report, fieldNames) {
-		report.addEntries(fieldNames)
-		return report.display(TextReport);	
-	}
-*/
 
 	function Report(fieldNames) {
 		this.fieldNames = fieldNames;
@@ -378,42 +313,6 @@ var oc = (function() {
 		return thisReport.display();		
 	}
 
-
-	function Row() {
-		ObjectList.call(this);
-	}
-	Row.prototype = Object.create(ObjectList.prototype);
-	Row.prototype.constructor = Row;
-	Row.prototype.addField = function(field) {
-		this.append(field);
-	}
-	Row.prototype.addRowToReport = function(thisReport) {
-		this.list.forEach(function(item) {
-			item.display(thisReport);
-		});
-		thisReport.nextLine();
-	};
-
-	function Table(fieldNames) {
-		this.fieldNames = fieldNames;
-		this.rows = [];
-	}
-	Table.prototype.addFieldName = function(fieldName) {
-		this.fieldNames.push(fieldNames);
-	};
-	Table.prototype.addRow = function(fieldsList) {		
-		var row = new Row();
-		fieldsList.addFields(row);
-		this.rows.push(row);
-	};
-	Table.prototype.display = function(format) {
-		var thisReport = new format();
-		this.fieldNames.addFieldNamesToReport(thisReport);
-		this.rows.forEach(function(row) {
-			row.addRowToReport(thisReport);
-		});
-		return thisReport.display();
-	}
 
 	function TextReport() {
 		this.text = "";
@@ -502,8 +401,13 @@ var oc = (function() {
 	}
 	FullName.prototype = Object.create(ValueObject.prototype);
 	FullName.prototype.constructor = FullName;
+	FullName.prototype.display = function(report) {
+		this.firstName.display(report);
+		this.lastName.display(report);
+	};
 	FullName.prototype.displayFieldName = function(report) {
-		report.addEntry('Full Name');
+		report.addEntry('First Name');
+		report.addEntry('Last Name');
 	};
 	FullName.prototype.displayFirstName = function(report) {
 		this.firstName.display(report);
@@ -556,12 +460,6 @@ var oc = (function() {
 //Utilities
 	function argumentsToArray(args) {
 		return Array.prototype.slice.call(args);
-	}
-
-	function unpack(args) {
-		if (args.length === 1 && args[0] instanceof Array) 
-			return argumentsToArray(args[0]);  
-		return argumentsToArray(args);
 	}
 
 	function containsValueObject(arr, obj) {
@@ -623,7 +521,6 @@ var oc = (function() {
 		Employer: Employer,
 		Report: Report,
 		jobList: jobList,
-		unpack: unpack,
 		ObjectList: ObjectList,
 		TheLadders: TheLadders,
 		Name: Name,

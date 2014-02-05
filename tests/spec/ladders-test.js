@@ -1,15 +1,9 @@
-xdescribe("A Job", function() {
-});
-
-describe("Unpack", function() {
-	it("unpacks an array containing exactly one array", function() {
-		expect(oc.unpack([[1, 2]])).toEqual([1, 2]);
-	});
-
-	it("should not unpack otherwise", function() {
-		expect(oc.unpack([[1], [2]])).not.toEqual([1]);
-	})
-});
+function testMethod(obj, method, message) {
+	console.log('*******************');
+	console.log(message);
+	console.log('-------------------');
+	console.log((obj[method].bind(obj))());
+}
 
 describe("ObjectLists", function() {
 	var ol = new oc.ObjectList();
@@ -79,7 +73,7 @@ describe("Uids are ValueObjects", function() {
 	console.log(new oc.Uid(10));
 });
 
-describe("An employer's list of jobs", function() {
+describe("Employers", function() {
 	var employer = new oc.Employer('Microsoft');
 	employer.postJob('engineer', oc.JReq);
 	employer.postJob('boxer', oc.ATS);
@@ -89,19 +83,17 @@ describe("An employer's list of jobs", function() {
 
 	console.log("There are " + oc.jobList.count() + " jobs posted.");
 
-	it("should now have stuff", function() {
-		expect(oc.jobList.list).toBeDefined();
-	});
-
-	it("should now have two items", function() {
-		expect(oc.jobList.count()).toBe(4);
-	});
-
-	it("should contain titles", function() {
+	it("can list the jobs they posted", function() {
 		expect(employer.listJobs()).toBeDefined();
 	});
 
-	console.log(employer.listJobs());
+	testMethod(employer, 'listJobs', 'Employer lists jobs');
+
+	it("can list the jobseekers who applied to their jobs", function() {
+		expect(employer.listJobSeekersWhoApplied()).toBeDefined();
+	});
+
+	testMethod(employer, 'listJobSeekersWhoApplied', 'Employer lists job applicants');
 });
 
 describe("A jobseeker can", function() {
@@ -115,7 +107,8 @@ describe("A jobseeker can", function() {
 	it("list jobs applied to", function() {
 		expect(jobseeker.listJobsAppliedTo()).toBeDefined();
 	});
-	console.log(jobseeker.listJobsAppliedTo());
+
+	testMethod(jobseeker, 'listJobsAppliedTo', 'jobseeker lists jobs applied to');
 
 	var jobToSave1 = new oc.JReq(new oc.Name('astronaut'), new oc.Employer('Exxon'));
 	var jobToSave2 = new oc.ATS(new oc.Name('welder'), new oc.Employer('BevMo'));
@@ -125,9 +118,10 @@ describe("A jobseeker can", function() {
 	it("list saved jobs", function() {
 		expect(jobseeker.listSavedJobs()).toBeDefined();
 	});
-	console.log(oc.savedJobsList);
-	console.log(jobseeker.listSavedJobs());
-	console.log(jobseeker.listJobs());
+
+	testMethod(jobseeker, 'listSavedJobs', 'jobseeker lists jobs saved');
+	
+	testMethod(jobseeker, 'listJobs', 'jobseeker lists all job');
 });
 
 describe("TheLadders", function() {
