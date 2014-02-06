@@ -1,8 +1,9 @@
-function testMethod(obj, method, message) {
+function testMethod(obj, method, message, arg) {
+	var arg = arg || null;
 	console.log('*******************');
 	console.log(message);
 	console.log('-------------------');
-	console.log((obj[method].bind(obj))());
+	console.log((obj[method].bind(obj, arg))());
 }
 
 describe("Names are ValueObjects", function() {
@@ -43,18 +44,20 @@ describe("Employers", function() {
 
 	var jobseeker = new oc.JobSeeker(new valueObjects.FullName('Martha', 'Jones'));
 	jobseeker.applyToJob(oc.jobList.list[1]);
+	var jobseeker2 = new oc.JobSeeker(new valueObjects.FullName('Fred', 'Maxwell'));
+	jobseeker2.applyToJob(oc.jobList.list[2]);
 
 	it("can list the jobs they posted", function() {
-		expect(employer.listJobs()).toBeDefined();
+		expect(employer.listJobs(reports.CsvReport)).toBeDefined();
 	});
 
-	testMethod(employer, 'listJobs', 'Employer lists jobs');
+	testMethod(employer, 'listJobs', 'Employer lists jobs', reports.CsvReport);
 
 	it("can list the jobseekers who applied to their jobs", function() {
-		expect(employer.listJobSeekersWhoApplied()).toBeDefined();
+		expect(employer.listJobSeekersWhoApplied(reports.CsvReport)).toBeDefined();
 	});
 
-	testMethod(employer, 'listJobSeekersWhoApplied', 'Employer lists job applicants');
+	testMethod(employer, 'listJobSeekersWhoApplied', 'Employer lists job applicants', reports.CsvReport);
 });
 
 describe("A jobseeker can", function() {
@@ -66,10 +69,10 @@ describe("A jobseeker can", function() {
 	jobseeker.applyToJob(testJob2, new oc.Resume('resume 2'));
 
 	it("list jobs applied to", function() {
-		expect(jobseeker.listJobsAppliedTo()).toBeDefined();
+		expect(jobseeker.listJobsAppliedTo(reports.CsvReport)).toBeDefined();
 	});
 
-	testMethod(jobseeker, 'listJobsAppliedTo', 'jobseeker lists jobs applied to');
+	testMethod(jobseeker, 'listJobsAppliedTo', 'jobseeker lists jobs applied to', reports.CsvReport);
 
 	var jobToSave1 = new oc.JReq(new valueObjects.Name('astronaut'), new oc.Employer('Exxon'));
 	var jobToSave2 = new oc.ATS(new valueObjects.Name('welder'), new oc.Employer('BevMo'));
@@ -77,12 +80,12 @@ describe("A jobseeker can", function() {
 	jobseeker.saveJob(jobToSave2);
 
 	it("list saved jobs", function() {
-		expect(jobseeker.listSavedJobs()).toBeDefined();
+		expect(jobseeker.listSavedJobs(reports.CsvReport)).toBeDefined();
 	});
 
-	testMethod(jobseeker, 'listSavedJobs', 'jobseeker lists jobs saved');
+	testMethod(jobseeker, 'listSavedJobs', 'jobseeker lists jobs saved', reports.CsvReport);
 	
-	testMethod(jobseeker, 'listJobs', 'jobseeker lists all job');
+	testMethod(jobseeker, 'listJobs', 'jobseeker lists all job', reports.CsvReport);
 
 });
 
@@ -90,6 +93,26 @@ describe("TheLadders", function() {
 	it("can see how many jobs have been posted", function() {
 		expect(oc.TheLadders.jobCount()).toBe(4);
 	});
+
+	it("can see how many job applications have been submitted", function() {
+		expect(oc.TheLadders.whoAppliedByDate(reports.CsvReport)).toBeDefined;
+	});
+
+	testMethod(oc.TheLadders, 'whoAppliedByDate', 'TheLadders lists all job applications', reports.CsvReport);
+
+	it("can see jobs with count of job applications", function() {
+		expect(oc.TheLadders.listAggregateJobNumbers(reports.CsvReport)).toBeDefined;
+	});
+
+	testMethod(oc.TheLadders, 'listAggregateJobNumbers', 'TheLadders lists all jobs with count of applications', reports.CsvReport);
+
+	it("can see both csv and html reports", function() {
+		expect(oc.TheLadders.listAggregateJobNumbers(reports.CsvReport)).toBeDefined;
+		expect(oc.TheLadders.listAggregateJobNumbers(reports.HtmlReport)).toBeDefined;
+	});
+
+	testMethod(oc.TheLadders, 'listAggregateJobNumbers', 'TheLadders lists all jobs with either csv or html reports', reports.HtmlReport);
+	testMethod(oc.TheLadders, 'listAggregateJobNumbers', 'TheLadders lists all jobs with either csv or html reports', reports.TextReport);
 });
 
 describe("FilterLists", function() {

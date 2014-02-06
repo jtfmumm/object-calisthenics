@@ -1,4 +1,6 @@
 var valueObjects = (function() {
+//Dependencies: utilities.js
+
 //Value Objects
 	function ValueObject(data, fieldNameString) {
 		this.data = data;
@@ -31,6 +33,15 @@ var valueObjects = (function() {
 	Uid.prototype.constructor = Uid;
 	Uid.prototype.displayFieldName = function(report) {
 		report.addEntry('UID');
+	};
+
+	function Count(count) {
+		ValueObject.call(this, count);
+	}
+	Count.prototype = Object.create(ValueObject.prototype);
+	Count.prototype.constructor = Count;
+	Count.prototype.displayFieldName = function(report) {
+		report.addEntry('Count');
 	};
 
 	function FullDate(thisDate) {
@@ -102,6 +113,7 @@ var valueObjects = (function() {
 		Name: Name,
 		FullName: FullName,
 		Uid: Uid,
+		Count: Count,
 		FullDate: FullDate,
 		ObjectList: ObjectList
 	};

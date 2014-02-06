@@ -1,4 +1,6 @@
 var reports = (function() {
+//Dependencies: utilities.js, value-objects.js
+
 //Reports
 	//FILTERS
 	//A list of filters.  Use .append to add a filter. 
@@ -55,7 +57,7 @@ var reports = (function() {
 			thisReport.nextLine();
 		});
 		return thisReport.display();		
-	}
+	};
 
 
 	function TextReport() {
@@ -73,9 +75,35 @@ var reports = (function() {
 		return this.text;
 	};
 
-	function CsvReport() {}
+	function CsvReport() {
+		this.text = "";
+	}
+	CsvReport.prototype.nextLine = function() {
+		this.text = this.text.substring(0, this.text.length - 2);
+		this.text += "\n";
+	};
+	CsvReport.prototype.addEntry = function(entry) {
+		this.text += (entry + ', ');
+	};
+	CsvReport.prototype.display = function() {
+		this.text = this.text.substring(0, this.text.length - 1);
+		return this.text;
+	};
 
-	function HtmlReport() {}
+	function HtmlReport() {
+		this.text = '<table>';
+	}
+	HtmlReport.prototype.nextLine = function() {
+		this.text += '</tr><tr>';
+	};
+	HtmlReport.prototype.addEntry = function(entry) {
+		this.text += ('<td>' + entry + '</td>');
+	};
+	HtmlReport.prototype.display = function() {
+		this.text = this.text.substring(0, this.text.length - 4);
+		this.text += '</table>';
+		return this.text;
+	};
 
 
 	var reports = {

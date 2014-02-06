@@ -1,4 +1,6 @@
 var utilities = (function() {
+//Dependencies: none
+
 //MODULE
 	var ut = {};
 
