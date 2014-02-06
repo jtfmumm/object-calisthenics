@@ -61,7 +61,7 @@ describe("Employers", function() {
 	testMethod(employer, 'listJobSeekersWhoApplied', 'Employer lists job applicants', reports.CsvReport);
 });
 
-describe("A jobseeker can", function() {
+describe("A JobSeeker can", function() {
 	var jobseeker = new oc.JobSeeker(new valueObjects.FullName('Bob', 'Smith'));
 	jobseeker.createResume('resume data');
 	var testJob1 = new oc.JReq(new valueObjects.Name('farmer'), new oc.Employer('Apple'));
@@ -157,7 +157,7 @@ describe("FilterLists", function() {
 		expect(filters.filter(newJob)).toBe(true);
 	});
 
-	it("can check if objects don't have certain properties", function() {
+	it("can check if objects have certain properties", function() {
 		expect(filters2.filter(newJob)).toBe(false);
 	});
 });
