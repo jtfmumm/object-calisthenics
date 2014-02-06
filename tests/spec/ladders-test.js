@@ -47,6 +47,7 @@ describe("Employers", function() {
 	var jobseeker2 = new oc.JobSeeker(new valueObjects.FullName('Fred', 'Maxwell'));
 	jobseeker2.applyToJob(oc.jobList.list[2]);
 
+
 	it("can list the jobs they posted", function() {
 		expect(employer.listJobs(reports.CsvReport)).toBeDefined();
 	});
@@ -107,10 +108,10 @@ describe("TheLadders", function() {
 	});
 
 	it("can list all job applications that have been submitted", function() {
-		expect(oc.TheLadders.whoAppliedByDate(reports.CsvReport)).toBeDefined;
+		expect(oc.TheLadders.listJobApplicationsByDate(reports.CsvReport)).toBeDefined;
 	});
 
-	testMethod(oc.TheLadders, 'whoAppliedByDate', 'TheLadders lists all job applications', reports.CsvReport);
+	testMethod(oc.TheLadders, 'listJobApplicationsByDate', 'TheLadders lists all job applications', reports.CsvReport);
 
 	it("can list all job applications for a particular date", function() {
 		expect(oc.TheLadders.listJobApplicationsForOneDate(reports.CsvReport, new valueObjects.FullDate('01/01/2000'))).toBeDefined;

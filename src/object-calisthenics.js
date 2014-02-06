@@ -32,7 +32,6 @@ var oc = (function() {
 	JReq.prototype = Object.create(Job.prototype);
 	JReq.prototype.isValidApplication = function(application) {
 		return application.hasResume();
-
 	}; 
 
 	function ATS(name, employer) {
@@ -57,6 +56,7 @@ var oc = (function() {
 
 	var jobList = new valueObjects.ObjectList();
 	jobList.makeCountList = function() {
+		//Make a list of jobWithCounts, one for each job
 		var jobWithCountList = new valueObjects.ObjectList();
 		this.list.forEach(function(job) {
 			var count = job.applicationCount();
@@ -240,7 +240,7 @@ var oc = (function() {
 		jobCount: function() {
 			return jobList.count();
 		},
-		whoAppliedByDate: function(format) {
+		listJobApplicationsByDate: function(format) {
 			var fields = new reports.FieldNames(valueObjects.FullName, Job, Employer, valueObjects.FullDate);
 			var report = new reports.Report(fields);
 			var filters = new reports.FilterList();
@@ -267,16 +267,16 @@ var oc = (function() {
 
 
 	var oc = {
-		Job: Job,
 		ATS: ATS,
 		JReq: JReq,
 		Employer: Employer,
 		JobSeeker: JobSeeker,
 		JobApplication: JobApplication,
-		jobApplicationList: jobApplicationList,
 		Resume: Resume,
 		TheLadders: TheLadders,
 		//For testing
+		Job: Job,
+		jobApplicationList: jobApplicationList,
 		jobList: jobList
 	}
 
