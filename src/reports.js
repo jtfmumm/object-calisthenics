@@ -3,11 +3,11 @@ var reports = (function() {
 	//FILTERS
 	//A list of filters.  Use .append to add a filter. 
 	function FilterList() {
-		ObjectList.call(this);
+		valueObjects.ObjectList.call(this);
 		for (var i = 0; i < arguments.length; i++) 
 			this.list.push(arguments[i]);		
 	}
-	FilterList.prototype = Object.create(ObjectList.prototype);
+	FilterList.prototype = Object.create(valueObjects.ObjectList.prototype);
 	FilterList.prototype.constructor = FilterList;
 	FilterList.prototype.filter = function(obj) {
 		return this.list.every(obj.passesFilter.bind(obj));
@@ -22,11 +22,11 @@ var reports = (function() {
 	}
 
 	function FieldNames() {
-		ObjectList.call(this);
+		valueObjects.ObjectList.call(this);
 		for (var i = 0; i < arguments.length; i++) 
 			this.list.push(new FieldName(arguments[i]));	
 	}
-	FieldNames.prototype = Object.create(ObjectList.prototype);
+	FieldNames.prototype = Object.create(valueObjects.ObjectList.prototype);
 	FieldNames.prototype.constructor = FieldNames;
 	FieldNames.prototype.addField = function(field) {
 		var field = new FieldName(field);

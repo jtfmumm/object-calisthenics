@@ -38,7 +38,7 @@ var oc = (function() {
 		return true;
 	}
 
-	var jobList = new valueObject.ObjectList();
+	var jobList = new valueObjects.ObjectList();
 
 
 //Employers 
@@ -58,18 +58,18 @@ var oc = (function() {
 		jobList.append(newJob);
 	};
 	Employer.prototype.listJobs = function() {
-		var fields = new reports.FieldNames(Name, Employer);
+		var fields = new reports.FieldNames(valueObjects.Name, Employer);
 		var report = new reports.Report(fields);
 		var filters = new reports.FilterList(this);
 		jobList.addFields(report, filters);
-		return report.display(TextReport);
+		return report.display(reports.TextReport);
 	};
 	Employer.prototype.listJobSeekersWhoApplied = function() {		
-		var fields = new reports.FieldNames(FullName, Job, Employer, FullDate);
+		var fields = new reports.FieldNames(valueObjects.FullName, Job, Employer, valueObjects.FullDate);
 		var report = new reports.Report(fields);
 		var filters = new reports.FilterList();
 		jobApplicationList.addFields(report, filters);
-		return report.display(TextReport);
+		return report.display(reports.TextReport);
 	};
 	Employer.prototype.equals = function(otherEmployer) {
 		return (otherEmployer.constructor === Employer) && (this.uid === otherEmployer.uid);
@@ -105,32 +105,32 @@ var oc = (function() {
 		savedJobsList.append(thisSavedJob);
 	} 
 	JobSeeker.prototype.applyToJob = function(job, resume) {
-		var thisDate = new valueObjects.FullDate(generateDate());
+		var thisDate = new valueObjects.FullDate(utilities.generateDate());
 		var thisResume = resume || new Resume();
 		var thisApplication = new JobApplication(job, this, thisResume, thisDate);
 		if (job.isValidApplication(thisApplication)) 
 			jobApplicationList.append(thisApplication);
 	};
 	JobSeeker.prototype.listJobs = function() {
-		var fields = new reports.FieldNames(Name, Employer);
+		var fields = new reports.FieldNames(valueObjects.Name, Employer);
 		var report = new reports.Report(fields);
 		var filters = new reports.FilterList();
 		jobList.addFields(report, filters);
-		return report.display(TextReport);
+		return report.display(reports.TextReport);
 	};
 	JobSeeker.prototype.listSavedJobs = function() {
-		var fields = new reports.FieldNames(Name, Employer);
+		var fields = new reports.FieldNames(valueObjects.Name, Employer);
 		var report = new reports.Report(fields);
 		var filters = new reports.FilterList(this);
 		savedJobsList.addFields(report, filters);
-		return report.display(TextReport);
+		return report.display(reports.TextReport);
 	};
 	JobSeeker.prototype.listJobsAppliedTo = function() {
-		var fields = new reports.FieldNames(FullName, Job, Employer, FullDate);
+		var fields = new reports.FieldNames(valueObjects.FullName, Job, Employer, valueObjects.FullDate);
 		var report = new reports.Report(fields);
 		var filters = new reports.FilterList(this);
 		jobApplicationList.addFields(report, filters);
-		return report.display(TextReport);
+		return report.display(reports.TextReport);
 	};
 	JobSeeker.prototype.equals = function(otherJobSeeker) {
 		return (otherJobSeeker.constructor === JobSeeker) && (this.uid === otherJobSeeker.uid);
@@ -216,7 +216,9 @@ var oc = (function() {
 		JobSeeker: JobSeeker,
 		JobApplication: JobApplication,
 		Resume: Resume,
-		TheLadders: TheLadders
+		TheLadders: TheLadders,
+		//For testing
+		jobList: jobList
 	}
 
 	return oc;

@@ -10,10 +10,10 @@ var utilities = (function() {
 		}
 	};
 
-	ut.resumeUidGenerator = makeUidGenerator();
-	ut.jobSeekerUidGenerator = makeUidGenerator();
-	ut.employerUidGenerator = makeUidGenerator();
-	ut.jobUidGenerator = makeUidGenerator();
+	ut.resumeUidGenerator = ut.makeUidGenerator();
+	ut.jobSeekerUidGenerator = ut.makeUidGenerator();
+	ut.employerUidGenerator = ut.makeUidGenerator();
+	ut.jobUidGenerator = ut.makeUidGenerator();
 
 
 	ut.isTrue = function(x) {
@@ -29,13 +29,13 @@ var utilities = (function() {
 	};
 
 	ut.areEqualValueObjects = function(vo1, vo2) {
-		return areSameValueObjectType(vo1, vo2) && 
+		return ut.areSameValueObjectType(vo1, vo2) && 
 			vo1.equals(vo2);
 	};
 
 	ut.containsValueObject = function(arr, obj) {
 		return arr.some(function(member) { 
-			return areEqualValueObjects(member, obj);
+			return ut.areEqualValueObjects(member, obj);
 		});
 	};
 
@@ -45,7 +45,7 @@ var utilities = (function() {
 			if (obj.hasOwnProperty(property)) 
 				values.push(obj[property].equals(valueObject));
 		}
-		return values.some(isTrue);
+		return values.some(ut.isTrue);
 	};
 
 	ut.listPropertyValues = function(obj) {
@@ -68,9 +68,9 @@ var utilities = (function() {
 	};
 
 	ut.generateDate = function() {
-		var day = rand(1, 30);
-		var month = rand(1, 12);
-		var year = rand(2012, 2300);
+		var day = ut.rand(1, 30);
+		var month = ut.rand(1, 12);
+		var year = ut.rand(2012, 2300);
 		return "" + month + "/" + day + "/" + year;
 	};
 

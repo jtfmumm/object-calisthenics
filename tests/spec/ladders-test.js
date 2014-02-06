@@ -6,44 +6,30 @@ function testMethod(obj, method, message) {
 }
 
 describe("Names are ValueObjects", function() {
-	var name1 = new oc.Name('Jim');
-	var name2 = new oc.Name('Sally');
-	var name3 = new oc.Name('Jim');
+	var name1 = new valueObjects.Name('Jim');
+	var name2 = new valueObjects.Name('Sally');
+	var name3 = new valueObjects.Name('Jim');
 
 	it("that can be tested for equality", function() {
-		expect(oc.areEqualValueObjects(name1, name3)).toBe(true);
+		expect(utilities.areEqualValueObjects(name1, name3)).toBe(true);
 	});
 
 	it("that can be tested for equality", function() {
-		expect(oc.areEqualValueObjects(name1, name2)).toBe(false);
-	});
-});
-
-describe("JobTypes are ValueObjects", function() {
-	var type1 = new oc.JobType('JReq');
-	var type2 = new oc.JobType('ATS');
-	var type3 = new oc.JobType('JReq');
-
-	it("that can be tested for equality", function() {
-		expect(oc.areEqualValueObjects(type1, type3)).toBe(true);
-	});
-
-	it("that can be tested for equality", function() {
-		expect(oc.areEqualValueObjects(type1, type2)).toBe(false);
+		expect(utilities.areEqualValueObjects(name1, name2)).toBe(false);
 	});
 });
 
 describe("Uids are ValueObjects", function() {
-	var uid1 = new oc.Uid(10);
-	var uid2 = new oc.Uid(5);
-	var uid3 = new oc.Uid(10);
+	var uid1 = new valueObjects.Uid(10);
+	var uid2 = new valueObjects.Uid(5);
+	var uid3 = new valueObjects.Uid(10);
 
 	it("that can be tested for equality", function() {
-		expect(oc.areEqualValueObjects(uid1, uid3)).toBe(true);
+		expect(utilities.areEqualValueObjects(uid1, uid3)).toBe(true);
 	});
 
 	it("that can be tested for equality", function() {
-		expect(oc.areEqualValueObjects(uid1, uid2)).toBe(false);
+		expect(utilities.areEqualValueObjects(uid1, uid2)).toBe(false);
 	});
 });
 
@@ -55,7 +41,7 @@ describe("Employers", function() {
 	employer2.postJob('screenwriter', oc.JReq);
 	employer2.postJob('copyeditor', oc.ATS);
 
-	var jobseeker = new oc.JobSeeker(new oc.FullName('Martha', 'Jones'));
+	var jobseeker = new oc.JobSeeker(new valueObjects.FullName('Martha', 'Jones'));
 	jobseeker.applyToJob(oc.jobList.list[1]);
 
 	it("can list the jobs they posted", function() {
@@ -72,10 +58,10 @@ describe("Employers", function() {
 });
 
 describe("A jobseeker can", function() {
-	var jobseeker = new oc.JobSeeker(new oc.FullName('Bob', 'Smith'));
+	var jobseeker = new oc.JobSeeker(new valueObjects.FullName('Bob', 'Smith'));
 	jobseeker.createResume('resume data');
-	var testJob1 = new oc.JReq(new oc.Name('farmer'), new oc.Employer('Apple'));
-	var testJob2 = new oc.ATS(new oc.Name('advertiser'), new oc.Employer('Disney'));
+	var testJob1 = new oc.JReq(new valueObjects.Name('farmer'), new oc.Employer('Apple'));
+	var testJob2 = new oc.ATS(new valueObjects.Name('advertiser'), new oc.Employer('Disney'));
 	jobseeker.applyToJob(testJob1, new oc.Resume('resume 1'));
 	jobseeker.applyToJob(testJob2, new oc.Resume('resume 2'));
 
@@ -85,8 +71,8 @@ describe("A jobseeker can", function() {
 
 	testMethod(jobseeker, 'listJobsAppliedTo', 'jobseeker lists jobs applied to');
 
-	var jobToSave1 = new oc.JReq(new oc.Name('astronaut'), new oc.Employer('Exxon'));
-	var jobToSave2 = new oc.ATS(new oc.Name('welder'), new oc.Employer('BevMo'));
+	var jobToSave1 = new oc.JReq(new valueObjects.Name('astronaut'), new oc.Employer('Exxon'));
+	var jobToSave2 = new oc.ATS(new valueObjects.Name('welder'), new oc.Employer('BevMo'));
 	jobseeker.saveJob(jobToSave1);
 	jobseeker.saveJob(jobToSave2);
 
@@ -107,15 +93,15 @@ describe("TheLadders", function() {
 });
 
 describe("FilterLists", function() {
-	var newJobName = new oc.Name('NEW JOB');
+	var newJobName = new valueObjects.Name('NEW JOB');
 	var hasbro = new oc.Employer('Hasbro');
 	var newJob = new oc.JReq(newJobName, hasbro);
-	var nameFilter = new oc.Name('NEW JOB');
-	var filters = new oc.FilterList();
+	var nameFilter = new valueObjects.Name('NEW JOB');
+	var filters = new reports.FilterList();
 	filters.append(nameFilter);
 	filters.append(hasbro);
-	var nameFilter2 = new oc.Name('wrong job');
-	var filters2 = new oc.FilterList();
+	var nameFilter2 = new valueObjects.Name('wrong job');
+	var filters2 = new reports.FilterList();
 	filters2.append(nameFilter2);
 
 	it("rely on an object's passesFilter method", function() {
