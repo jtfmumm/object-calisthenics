@@ -254,6 +254,13 @@ var oc = (function() {
 			var countList = jobList.makeCountList();
 			countList.addFields(report, filters);
 			return report.display(format);
+		},
+		listJobApplicationsForOneDate: function(format, fullDate) {
+			var fields = new reports.FieldNames(valueObjects.FullName, Job, Employer, valueObjects.FullDate);
+			var report = new reports.Report(fields);
+			var filters = new reports.FilterList(fullDate);
+			jobApplicationList.addFields(report, filters);
+			return report.display(format);					
 		}
 
 	}
@@ -266,6 +273,7 @@ var oc = (function() {
 		Employer: Employer,
 		JobSeeker: JobSeeker,
 		JobApplication: JobApplication,
+		jobApplicationList: jobApplicationList,
 		Resume: Resume,
 		TheLadders: TheLadders,
 		//For testing

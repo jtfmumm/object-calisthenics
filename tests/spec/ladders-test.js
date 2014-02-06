@@ -90,15 +90,36 @@ describe("A jobseeker can", function() {
 });
 
 describe("TheLadders", function() {
+	var jobseeker10 = new oc.JobSeeker(new valueObjects.FullName('Sally', 'Johnson'));
+	var jobseeker11 = new oc.JobSeeker(new valueObjects.FullName('Reginald', 'Clarke'));
+	var job10 = new oc.ATS(new valueObjects.Name('wanderer'), new oc.Employer('Borders'));
+	var job11 = new oc.ATS(new valueObjects.Name('stocker'), new oc.Employer('Barnes and Noble'));
+	var app1 = new oc.JobApplication(job10, jobseeker10, new oc.Resume('resume'), new valueObjects.FullDate('01/01/2000'));
+	var app2 = new oc.JobApplication(job11, jobseeker10, new oc.Resume('resume'), new valueObjects.FullDate('01/01/2000'));
+	var app3 = new oc.JobApplication(job11, jobseeker11, new oc.Resume('resume'), new valueObjects.FullDate('01/01/2000'));
+	oc.jobApplicationList.append(app1);
+	oc.jobApplicationList.append(app2);
+	oc.jobApplicationList.append(app3);
+
+
 	it("can see how many jobs have been posted", function() {
 		expect(oc.TheLadders.jobCount()).toBe(4);
 	});
 
-	it("can see how many job applications have been submitted", function() {
+	it("can list all job applications that have been submitted", function() {
 		expect(oc.TheLadders.whoAppliedByDate(reports.CsvReport)).toBeDefined;
 	});
 
 	testMethod(oc.TheLadders, 'whoAppliedByDate', 'TheLadders lists all job applications', reports.CsvReport);
+
+	it("can list all job applications for a particular date", function() {
+		expect(oc.TheLadders.listJobApplicationsForOneDate(reports.CsvReport, new valueObjects.FullDate('01/01/2000'))).toBeDefined;
+	});
+
+	console.log('*******************');
+	console.log('TheLadders lists all job applications for one date (here 01/01/2000)');
+	console.log('-------------------');
+	console.log(oc.TheLadders.listJobApplicationsForOneDate(reports.CsvReport, new valueObjects.FullDate('01/01/2000')));
 
 	it("can see jobs with count of job applications", function() {
 		expect(oc.TheLadders.listAggregateJobNumbers(reports.CsvReport)).toBeDefined;
