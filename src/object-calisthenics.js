@@ -38,16 +38,30 @@ var oc = (function() {
 	};
 
 
-	function JobWithCount(job, count) {
+	function JobWithSucceededCount(job, count) {
 		this.job = job;
 		this.count = count;
 	};
-	JobWithCount.prototype.passesFilter = function(filter) {
+	JobWithSucceededCount.prototype.passesFilter = function(filter) {
 		return utilities.hasValueObject(this, filter);
 	};
-	JobWithCount.prototype.display = function(thisReport) {
+	JobWithSucceededCount.prototype.display = function(thisReport) {
 		this.job.display(thisReport);
 		this.count.display(thisReport);
+	};
+
+	function JobWithSucceededAndFailedCount(job, succeededCount, failedCount) {
+		this.job = job;
+		this.succeededCount = succeededCount;
+		this.failedCount = failedCount;
+	}; 
+	JobWithSucceededAndFailedCount.prototype.passesFilter = function(filter) {
+		return utilities.hasValueObject(this, filter);
+	};
+	JobWithSucceededAndFailedCount.prototype.display = function(thisReport) {
+		this.job.display(thisReport);
+		this.succeededCount.display(thisReport);
+		this.failedCount.display(thisReport);
 	};
 
 
@@ -108,8 +122,11 @@ var oc = (function() {
 		report.addEntry('Job');
 		report.addEntry('Employer');
 	};	
-	PostedJob.prototype.applicationCount = function() {
-		return jobApplicationList.countByJob(this);
+	PostedJob.prototype.succeededApplicationCount = function() {
+		return jobApplicationList.countSuccessesByJob(this);
+	};
+	PostedJob.prototype.failedApplicationCount = function() {
+		return jobApplicationList.countFailuresByJob(this);
 	};
 	PostedJob.prototype.isValidApplication = function(application) {
 		return this.job.isValidApplication(application);
@@ -119,16 +136,27 @@ var oc = (function() {
 	};
 
 	var postedJobsList = new valueObjects.ObjectList();
-	postedJobsList.makeCountList = function() {
-		//Make a list of jobWithCounts, one for each job
-		var jobWithCountList = new valueObjects.ObjectList();
+	postedJobsList.makeSucceededCountList = function() {
+		//Make a list of jobWithSuccededCounts, one for each job
+		var jobWithSucceededCountList = new valueObjects.ObjectList();
 		this.list.forEach(function(job) {
-			var count = job.applicationCount();
-			var jobWithCount = new JobWithCount(job, count);
-			jobWithCountList.append(jobWithCount);
+			var count = job.succeededApplicationCount();
+			var jobWithCount = new JobWithSucceededCount(job, count);
+			jobWithSucceededCountList.append(jobWithCount);
 		});
-		return jobWithCountList;
+		return jobWithSucceededCountList;
 	};
+	postedJobsList.makeSucceededAndFailedCountList = function() {
+		var jobWithSucceededAndFailedCountList = new valueObjects.ObjectList();
+		this.list.forEach(function(job) {
+			var succeededCount = job.succeededApplicationCount();
+			var failedCount = job.failedApplicationCount();
+			var jobWithSucceededAndFailedCount = new JobWithSucceededAndFailedCount(job, succeededCount, failedCount);
+			jobWithSucceededAndFailedCountList.append(jobWithSucceededAndFailedCount);
+		});
+		return jobWithSucceededAndFailedCountList;
+	};
+
 
 //Jobseekers
 	function JobSeeker(name) {
@@ -160,8 +188,7 @@ var oc = (function() {
 		var thisDate = new valueObjects.FullDate(utilities.generateDate());
 		var thisResume = resume || new Resume();
 		var thisApplication = new JobApplication(job, this, thisResume, thisDate);
-		if (job.isValidApplication(thisApplication)) 
-			jobApplicationList.append(thisApplication);
+		jobApplicationList.append(thisApplication);
 	};
 	JobSeeker.prototype.listJobs = function(format) {
 		var fields = new reports.FieldNames(valueObjects.JobTitle, Employer);
@@ -218,6 +245,9 @@ var oc = (function() {
 	Resume.prototype.display = function(thisReport) {
 		thisReport.addEntry(this.resume);
 	};
+	Resume.prototype.isNotNull = function() {
+		return this.resume != undefined;
+	};
 	Resume.prototype.equals = function(otherResume) {
 		return this.constructor === otherResume.constructor 
 			&& this.resume === otherResume.resume 
@@ -243,22 +273,49 @@ var oc = (function() {
 		this.thisDate.display(thisReport);
 	};	
 	JobApplication.prototype.hasResume = function() {
-		return !!this.resume; 
+		return this.resume.isNotNull(); 
 	};
 	JobApplication.prototype.equals = function(otherJobApplication) {
 		return (otherJobApplication.constructor === JobApplication) && (this.uid === otherJobApplication.uid);
 	};
-
-	var jobApplicationList = new valueObjects.ObjectList();
-	jobApplicationList.countByJob = function(job) {
-		var count = 0;
-		var filter = job;
-		this.list.forEach(function(application) {
-			if (application.passesFilter(filter))
-				count++;
-		});
-		return new valueObjects.Count(count);
+	JobApplication.prototype.isValidApplication = function() {
+		return this.job.isValidApplication(this);
 	};
+
+	var jobApplicationList = {
+		true: [],
+		false: [],
+		append: function(application) {
+			var isSuccessful = application.isValidApplication();
+			this[isSuccessful].push(application);
+		},
+		countSuccessesByJob: function(job) {
+			var count = 0;
+			var filter = job;
+			this[true].forEach(function(application) {
+				if (application.passesFilter(filter))
+					count++;
+			});
+			return new valueObjects.Count(count);
+		},
+		countFailuresByJob: function(job) {
+			var count = 0;
+			var filter = job;
+			this[false].forEach(function(application) {
+				if (application.passesFilter(filter))
+					count++;
+			});
+			return new valueObjects.Count(count);
+		},
+
+		addFields: function(report, filterList) {
+			this[true].forEach(function(obj) {
+				if (filterList.filter(obj)) 
+					report.addField(obj);
+			});
+		}
+	};
+
 
 
 //TheLadders
@@ -277,7 +334,7 @@ var oc = (function() {
 			var fields = new reports.FieldNames(valueObjects.JobTitle, Employer, valueObjects.Count);
 			var report = new reports.Report(fields);
 			var filters = new reports.FilterList();
-			var countList = postedJobsList.makeCountList();
+			var countList = postedJobsList.makeSucceededCountList();
 			countList.addFields(report, filters);
 			return report.display(format);
 		},
@@ -287,6 +344,14 @@ var oc = (function() {
 			var filters = new reports.FilterList(fullDate);
 			jobApplicationList.addFields(report, filters);
 			return report.display(format);					
+		},
+		listJobApplicationsSuccessesAndFailures: function(format, fullDate) {
+			var fields = new reports.FieldNames(valueObjects.JobTitle, Employer, valueObjects.SucceededCount, valueObjects.FailedCount);
+			var report = new reports.Report(fields);
+			var filters = new reports.FilterList();
+			var countList = postedJobsList.makeSucceededAndFailedCountList();
+			countList.addFields(report, filters);
+			return report.display(format);	
 		}
 
 	}

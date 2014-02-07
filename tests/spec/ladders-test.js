@@ -47,7 +47,8 @@ describe("Employers", function() {
 	var jobseeker = new oc.JobSeeker(new valueObjects.Name('Martha Jones'));
 	jobseeker.applyToJob(oc.postedJobsList.list[1]);
 	var jobseeker2 = new oc.JobSeeker(new valueObjects.FullName('Fred Maxwell'));
-	jobseeker2.applyToJob(oc.postedJobsList.list[2]);
+	jobseeker2.applyToJob(oc.postedJobsList.list[2], new oc.Resume('resume'));
+	jobseeker2.applyToJob(oc.postedJobsList.list[0]);
 
 
 	it("can list the jobs they posted", function() {
@@ -133,6 +134,13 @@ describe("TheLadders", function() {
 	});
 
 	testMethod(oc.TheLadders, 'listAggregateJobNumbers', 'TheLadders lists all jobs with count of applications', reports.CsvReport);
+
+	it("can see jobs with count of successes and then failures", function() {
+		expect(oc.TheLadders.listJobApplicationsSuccessesAndFailures(reports.CsvReport)).toBeDefined;
+	});
+
+	testMethod(oc.TheLadders, 'listJobApplicationsSuccessesAndFailures', 'TheLadders lists all jobs with count of applications', reports.CsvReport);
+
 
 	it("can see both csv and html reports", function() {
 		expect(oc.TheLadders.listAggregateJobNumbers(reports.CsvReport)).toBeDefined;
