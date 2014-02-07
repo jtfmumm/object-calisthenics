@@ -6,10 +6,12 @@ function testMethod(obj, method, message, arg) {
 	console.log((obj[method].bind(obj, arg))());
 }
 
+function xtestMethod() {}
+
 describe("Names are ValueObjects", function() {
-	var name1 = new valueObjects.Name('Jim');
-	var name2 = new valueObjects.Name('Sally');
-	var name3 = new valueObjects.Name('Jim');
+	var name1 = new valueObjects.Name('Jim Jones');
+	var name2 = new valueObjects.Name('Sally Sutherland');
+	var name3 = new valueObjects.Name('Jim Jones');
 
 	it("that can be tested for equality", function() {
 		expect(utilities.areEqualValueObjects(name1, name3)).toBe(true);
@@ -42,10 +44,10 @@ describe("Employers", function() {
 	employer2.postJob('screenwriter', oc.JReq);
 	employer2.postJob('copyeditor', oc.ATS);
 
-	var jobseeker = new oc.JobSeeker(new valueObjects.FullName('Martha', 'Jones'));
-	jobseeker.applyToJob(oc.jobList.list[1]);
-	var jobseeker2 = new oc.JobSeeker(new valueObjects.FullName('Fred', 'Maxwell'));
-	jobseeker2.applyToJob(oc.jobList.list[2]);
+	var jobseeker = new oc.JobSeeker(new valueObjects.Name('Martha Jones'));
+	jobseeker.applyToJob(oc.postedJobsList.list[1]);
+	var jobseeker2 = new oc.JobSeeker(new valueObjects.FullName('Fred Maxwell'));
+	jobseeker2.applyToJob(oc.postedJobsList.list[2]);
 
 
 	it("can list the jobs they posted", function() {
@@ -62,12 +64,14 @@ describe("Employers", function() {
 });
 
 describe("A JobSeeker can", function() {
-	var jobseeker = new oc.JobSeeker(new valueObjects.FullName('Bob', 'Smith'));
+	var jobseeker = new oc.JobSeeker(new valueObjects.Name('Bob Smith'));
 	jobseeker.createResume('resume data');
-	var testJob1 = new oc.JReq(new valueObjects.Name('farmer'), new oc.Employer('Apple'));
-	var testJob2 = new oc.ATS(new valueObjects.Name('advertiser'), new oc.Employer('Disney'));
-	jobseeker.applyToJob(testJob1, new oc.Resume('resume 1'));
-	jobseeker.applyToJob(testJob2, new oc.Resume('resume 2'));
+	var testJob1 = new oc.JReq(new valueObjects.Name('farmer'));
+	var postedTestJob1 = new oc.PostedJob(testJob1, new oc.Employer('Apple'));
+	var testJob2 = new oc.ATS(new valueObjects.Name('advertiser'));
+	var postedTestJob2 = new oc.PostedJob(testJob2, new oc.Employer('Disney'));	
+	jobseeker.applyToJob(postedTestJob1, new oc.Resume('resume 1'));
+	jobseeker.applyToJob(postedTestJob2, new oc.Resume('resume 2'));
 
 	it("list jobs applied to", function() {
 		expect(jobseeker.listJobsAppliedTo(reports.CsvReport)).toBeDefined();
@@ -75,10 +79,12 @@ describe("A JobSeeker can", function() {
 
 	testMethod(jobseeker, 'listJobsAppliedTo', 'jobseeker lists jobs applied to', reports.CsvReport);
 
-	var jobToSave1 = new oc.JReq(new valueObjects.Name('astronaut'), new oc.Employer('Exxon'));
-	var jobToSave2 = new oc.ATS(new valueObjects.Name('welder'), new oc.Employer('BevMo'));
-	jobseeker.saveJob(jobToSave1);
-	jobseeker.saveJob(jobToSave2);
+	var jobToSave1 = new oc.JReq(new valueObjects.Name('astronaut'));
+	var postedJobToSave1 = new oc.PostedJob(jobToSave1, new oc.Employer('Exxon'));
+	var jobToSave2 = new oc.ATS(new valueObjects.Name('welder'));
+	var postedJobToSave2 = new oc.PostedJob(jobToSave2, new oc.Employer('BevMo'));
+	jobseeker.saveJob(postedJobToSave1);
+	jobseeker.saveJob(postedJobToSave2);
 
 	it("list saved jobs", function() {
 		expect(jobseeker.listSavedJobs(reports.CsvReport)).toBeDefined();
@@ -91,8 +97,8 @@ describe("A JobSeeker can", function() {
 });
 
 describe("TheLadders", function() {
-	var jobseeker10 = new oc.JobSeeker(new valueObjects.FullName('Sally', 'Johnson'));
-	var jobseeker11 = new oc.JobSeeker(new valueObjects.FullName('Reginald', 'Clarke'));
+	var jobseeker10 = new oc.JobSeeker(new valueObjects.Name('Sally Johnson'));
+	var jobseeker11 = new oc.JobSeeker(new valueObjects.Name('Reginald Clarke'));
 	var job10 = new oc.ATS(new valueObjects.Name('wanderer'), new oc.Employer('Borders'));
 	var job11 = new oc.ATS(new valueObjects.Name('stocker'), new oc.Employer('Barnes and Noble'));
 	var app1 = new oc.JobApplication(job10, jobseeker10, new oc.Resume('resume'), new valueObjects.FullDate('01/01/2000'));
@@ -140,7 +146,8 @@ describe("TheLadders", function() {
 describe("FilterLists", function() {
 	var newJobName = new valueObjects.Name('NEW JOB');
 	var hasbro = new oc.Employer('Hasbro');
-	var newJob = new oc.JReq(newJobName, hasbro);
+	var newJob = new oc.JReq(newJobName);
+	var newPostedJob = new oc.PostedJob(newJob, hasbro);
 	var nameFilter = new valueObjects.Name('NEW JOB');
 	var filters = new reports.FilterList();
 	filters.append(nameFilter);
@@ -154,10 +161,10 @@ describe("FilterLists", function() {
 	});
 
 	it("can check if objects have certain properties", function() {
-		expect(filters.filter(newJob)).toBe(true);
+		expect(filters.filter(newPostedJob)).toBe(true);
 	});
 
 	it("can check if objects have certain properties", function() {
-		expect(filters2.filter(newJob)).toBe(false);
+		expect(filters2.filter(newPostedJob)).toBe(false);
 	});
 });

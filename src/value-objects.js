@@ -26,6 +26,15 @@ var valueObjects = (function() {
 		report.addEntry('Name');
 	};
 
+	function JobTitle(title) {
+		ValueObject.call(this, title);
+	}
+	JobTitle.prototype = Object.create(ValueObject.prototype);
+	JobTitle.prototype.constructor = Name;
+	JobTitle.prototype.displayFieldName = function(report) {
+		report.addEntry('Job Title');
+	};
+
 	function Uid(uid) {
 		ValueObject.call(this, uid);
 	}
@@ -112,6 +121,7 @@ var valueObjects = (function() {
 		ValueObject: ValueObject,
 		Name: Name,
 		FullName: FullName,
+		JobTitle: JobTitle,
 		Uid: Uid,
 		Count: Count,
 		FullDate: FullDate,
