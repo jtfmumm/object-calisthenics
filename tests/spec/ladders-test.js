@@ -38,11 +38,15 @@ describe("Uids are ValueObjects", function() {
 
 describe("Employers", function() {
 	var employer = new oc.Employer('Microsoft');
-	employer.postJob('engineer', oc.JReq);
-	employer.postJob('boxer', oc.ATS);
+	var job1 = employer.createJob('engineer', oc.JReq);
+	var job2 = employer.createJob('boxer', oc.ATS);
+	employer.postJob(job1);
+	employer.postJob(job2);
 	var employer2 = new oc.Employer('Apple');
-	employer2.postJob('screenwriter', oc.JReq);
-	employer2.postJob('copyeditor', oc.ATS);
+	var job3 = employer.createJob('screenwriter', oc.JReq);
+	var job4 = employer.createJob('copyeditor', oc.ATS);
+	employer2.postJob(job3);
+	employer2.postJob(job4);
 
 	var jobseeker = new oc.JobSeeker(new valueObjects.Name('Martha Jones'));
 	jobseeker.applyToJob(oc.postedJobsList.list[1]);

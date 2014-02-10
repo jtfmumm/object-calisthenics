@@ -49,10 +49,11 @@ var oc = (function() {
 	Employer.prototype.displayFieldName = function(report) {
 		report.addEntry('Employer');
 	};
-	Employer.prototype.postJob = function(title, type) {
-		var title = new valueObjects.JobTitle(title);
-		var newJob = new type(title);
-		var newPostedJob = new PostedJob(newJob, this);
+	Employer.prototype.createJob = function(title, type) {
+		return new type(new valueObjects.Name(title));
+	};
+	Employer.prototype.postJob = function(job) {
+		var newPostedJob = new PostedJob(job, this);
 		postedJobsList.append(newPostedJob);
 	};
 	Employer.prototype.listJobs = function(format) {
