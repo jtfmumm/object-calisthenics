@@ -38,23 +38,42 @@ var reports = (function() {
 		this.list.forEach(function(item) {
 			item.displayFieldName(thisReport);
 		});
-		thisReport.nextLine();	
+		thisReport.nextRow();	
 	};
 
+	function Row() {
+		this.data = [];
+		for (var i = 0; i < arguments.length; i++)
+			this.data.push(arguments[i]);
+	}
+	Row.prototype.append = function(item) {
+		this.data.push(item);
+	};
+	Row.prototype.display = function(report) {
+		this.data.forEach(function(obj) {
+			obj.display(report);
+		});
+	};
 
 	function Report(fieldNames) {
 		this.fieldNames = fieldNames;
-		this.fields = [];
-	}
+		this.rows = [];
+	}	
+	Report.prototype.addLine = function() {
+		var row = new Row();
+		for (var i = 0; i < arguments.length; i++) 
+			row.append(arguments[i]);
+		this.rows.push(row);
+	};
 	Report.prototype.addField = function(field) {
-		this.fields.push(field);
+		this.rows.push(field);
 	};
 	Report.prototype.display = function(format) {
 		var thisReport = new format();
 		this.fieldNames.addFieldNamesToReport(thisReport);
-		this.fields.forEach(function(obj) {
+		this.rows.forEach(function(obj) {
 			obj.display(thisReport);
-			thisReport.nextLine();
+			thisReport.nextRow();
 		});
 		return thisReport.display();		
 	};
@@ -63,7 +82,7 @@ var reports = (function() {
 	function TextReport() {
 		this.text = "";
 	}
-	TextReport.prototype.nextLine = function() {
+	TextReport.prototype.nextRow = function() {
 		this.text = this.text.substring(0, this.text.length - 2);
 		this.text += "\n";
 	};
@@ -78,7 +97,7 @@ var reports = (function() {
 	function CsvReport() {
 		this.text = "";
 	}
-	CsvReport.prototype.nextLine = function() {
+	CsvReport.prototype.nextRow = function() {
 		this.text = this.text.substring(0, this.text.length - 2);
 		this.text += "\n";
 	};
@@ -93,7 +112,7 @@ var reports = (function() {
 	function HtmlReport() {
 		this.text = '<table>';
 	}
-	HtmlReport.prototype.nextLine = function() {
+	HtmlReport.prototype.nextRow = function() {
 		this.text += '</tr><tr>';
 	};
 	HtmlReport.prototype.addEntry = function(entry) {
