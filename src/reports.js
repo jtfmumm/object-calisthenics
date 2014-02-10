@@ -15,14 +15,6 @@ var reports = (function() {
 		return this.list.every(obj.passesFilter.bind(obj));
 	};
 
-
-	//TABLES
-	function FieldName(valueObject) {
-		valueObject.call(this, null);
-		this.constructor = valueObject;
-		this.displayFieldName = this.constructor.prototype.displayFieldName;
-	}
-
 	function Row() {
 		this.data = [];
 		for (var i = 0; i < arguments.length; i++)
@@ -111,7 +103,6 @@ var reports = (function() {
 
 	var reports = {
 		FilterList: FilterList,
-		FieldName: FieldName,
 		Report: Report,
 		TextReport: TextReport,
 		CsvReport: CsvReport,
