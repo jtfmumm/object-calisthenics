@@ -47,33 +47,20 @@ var reports = (function() {
 	};
 	Report.prototype.display = function(format) {
 		var thisReport = new format();
-		this.rows.forEach(function(obj) {
-			obj.display(thisReport);
-			thisReport.nextRow();
+		this.rows.forEach(function(row) {			
+			thisReport.startRow();
+			row.display(thisReport);
+			thisReport.endRow();
 		});
 		return thisReport.display();		
-	};
-
-
-	function TextReport() {
-		this.text = "";
-	}
-	TextReport.prototype.nextRow = function() {
-		this.text = this.text.substring(0, this.text.length - 2);
-		this.text += "\n";
-	};
-	TextReport.prototype.addEntry = function(entry) {
-		this.text += (entry + ', ');
-	};
-	TextReport.prototype.display = function() {
-		this.text = this.text.substring(0, this.text.length - 1);
-		return this.text;
 	};
 
 	function CsvReport() {
 		this.text = "";
 	}
-	CsvReport.prototype.nextRow = function() {
+	CsvReport.prototype.startRow = function() {
+	};
+	CsvReport.prototype.endRow = function() {
 		this.text = this.text.substring(0, this.text.length - 2);
 		this.text += "\n";
 	};
@@ -88,14 +75,16 @@ var reports = (function() {
 	function HtmlReport() {
 		this.text = '<table>';
 	}
-	HtmlReport.prototype.nextRow = function() {
-		this.text += '</tr><tr>';
+	HtmlReport.prototype.startRow = function() {
+		this.text += '<tr>';
+	};
+	HtmlReport.prototype.endRow = function() {
+		this.text += '</tr>';
 	};
 	HtmlReport.prototype.addEntry = function(entry) {
 		this.text += ('<td>' + entry + '</td>');
 	};
 	HtmlReport.prototype.display = function() {
-		this.text = this.text.substring(0, this.text.length - 4);
 		this.text += '</table>';
 		return this.text;
 	};
@@ -104,7 +93,6 @@ var reports = (function() {
 	var reports = {
 		FilterList: FilterList,
 		Report: Report,
-		TextReport: TextReport,
 		CsvReport: CsvReport,
 		HtmlReport: HtmlReport
 	}
