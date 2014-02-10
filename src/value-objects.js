@@ -36,18 +36,6 @@ var valueObjects = (function() {
 	Count.prototype = Object.create(ValueObject.prototype);
 	Count.prototype.constructor = Count;
 
-	function SucceededCount(count) {
-		ValueObject.call(this, count);
-	}
-	SucceededCount.prototype = Object.create(ValueObject.prototype);
-	SucceededCount.prototype.constructor = Count;
-
-	function FailedCount(count) {
-		ValueObject.call(this, count);
-	}
-	FailedCount.prototype = Object.create(ValueObject.prototype);
-	FailedCount.prototype.constructor = Count;
-
 	function FullDate(thisDate) {
 		var thisDate = thisDate || utilities.generateDate();
 		ValueObject.call(this, thisDate);
@@ -109,8 +97,6 @@ var valueObjects = (function() {
 		JobTitle: JobTitle,
 		Uid: Uid,
 		Count: Count,
-		SucceededCount: SucceededCount,
-		FailedCount: FailedCount,
 		FullDate: FullDate,
 		ObjectList: ObjectList
 	};

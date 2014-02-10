@@ -68,6 +68,7 @@ var oc = (function() {
 
 	var employerList = new valueObjects.ObjectList();
 
+
 	function PostedJob(job, employer) {
 		this.job = job;
 		this.employer = employer;
@@ -153,6 +154,7 @@ var oc = (function() {
 	JobSeeker.prototype.equals = function(otherJobSeeker) {
 		return (otherJobSeeker.constructor === JobSeeker) && (this.uid === otherJobSeeker.uid);
 	};
+
 
 	function SavedJob(job, jobSeeker) {
 		this.job = job;
