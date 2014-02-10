@@ -23,24 +23,6 @@ var reports = (function() {
 		this.displayFieldName = this.constructor.prototype.displayFieldName;
 	}
 
-	function FieldNames() {
-		valueObjects.ObjectList.call(this);
-		for (var i = 0; i < arguments.length; i++) 
-			this.list.push(new FieldName(arguments[i]));	
-	}
-	FieldNames.prototype = Object.create(valueObjects.ObjectList.prototype);
-	FieldNames.prototype.constructor = FieldNames;
-	FieldNames.prototype.addField = function(field) {
-		var field = new FieldName(field);
-		this.append(field);
-	};
-	FieldNames.prototype.addFieldNamesToReport = function(thisReport) {
-		this.list.forEach(function(item) {
-			item.displayFieldName(thisReport);
-		});
-		thisReport.nextRow();	
-	};
-
 	function Row() {
 		this.data = [];
 		for (var i = 0; i < arguments.length; i++)
@@ -55,9 +37,12 @@ var reports = (function() {
 		});
 	};
 
-	function Report(fieldNames) {
-		this.fieldNames = fieldNames;
+	function Report() {
 		this.rows = [];
+		var fieldNamesRow = new Row();
+		for (var i = 0; i < arguments.length; i++) 
+			fieldNamesRow.append(new valueObjects.Name(arguments[i]));
+		this.rows.push(fieldNamesRow);
 	}	
 	Report.prototype.addLine = function() {
 		var row = new Row();
@@ -70,7 +55,6 @@ var reports = (function() {
 	};
 	Report.prototype.display = function(format) {
 		var thisReport = new format();
-		this.fieldNames.addFieldNamesToReport(thisReport);
 		this.rows.forEach(function(obj) {
 			obj.display(thisReport);
 			thisReport.nextRow();
@@ -128,7 +112,6 @@ var reports = (function() {
 	var reports = {
 		FilterList: FilterList,
 		FieldName: FieldName,
-		FieldNames: FieldNames,
 		Report: Report,
 		TextReport: TextReport,
 		CsvReport: CsvReport,
