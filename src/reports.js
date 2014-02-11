@@ -36,7 +36,7 @@ var reports = (function() {
 			fieldNamesRow.append(new valueObjects.Name(arguments[i]));
 		this.rows.push(fieldNamesRow);
 	}	
-	Report.prototype.addLine = function() {
+	Report.prototype.addToReport = function() {
 		var row = new Row();
 		for (var i = 0; i < arguments.length; i++) 
 			row.append(arguments[i]);

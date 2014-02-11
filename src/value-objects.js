@@ -68,6 +68,9 @@ var valueObjects = (function() {
 	ObjectList.prototype.append = function(item) {
 		this.list.push(item);
 	};
+	ObjectList.prototype.passesFilter = function(filter) {
+		return utilities.hasValueObject(this.list, filter);
+	};
 	ObjectList.prototype.forEach = function(fn) {
 		this.list.forEach(fn);
 	};
@@ -82,10 +85,10 @@ var valueObjects = (function() {
 	ObjectList.prototype.count = function() {
 		return this.list.length;
 	};
-	ObjectList.prototype.addLines = function(report, filterList) {
+	ObjectList.prototype.addToReport = function(report, filterList) {
 		this.list.forEach(function(obj) {
 			if (filterList.filter(obj)) 
-				report.addLine(obj);
+				report.addToReport(obj);
 		});
 	};
 

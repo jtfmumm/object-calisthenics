@@ -70,13 +70,14 @@ describe("Employers", function() {
 
 describe("A JobSeeker can", function() {
 	var jobseeker = new oc.JobSeeker(new valueObjects.Name('Bob Smith'));
-	jobseeker.createResume('resume data');
+	jobseeker.createResume('resume data1');
+	jobseeker.createResume('resume data2');
 	var testJob1 = new oc.JReq(new valueObjects.Name('farmer'));
 	var postedTestJob1 = new oc.PostedJob(testJob1, new oc.Employer('Apple'));
 	var testJob2 = new oc.ATS(new valueObjects.Name('advertiser'));
 	var postedTestJob2 = new oc.PostedJob(testJob2, new oc.Employer('Disney'));	
-	jobseeker.applyToJob(postedTestJob1, new oc.Resume('resume 1'));
-	jobseeker.applyToJob(postedTestJob2, new oc.Resume('resume 2'));
+	jobseeker.applyToJob(postedTestJob1, jobseeker.ownResumes[0]);
+	jobseeker.applyToJob(postedTestJob2, jobseeker.ownResumes[1]);
 
 	it("list jobs applied to", function() {
 		expect(jobseeker.listJobsAppliedTo(reports.CsvReport)).toBeDefined();
@@ -109,9 +110,12 @@ describe("TheLadders", function() {
 	var app1 = new oc.JobApplication(job10, jobseeker10, new oc.Resume('resume'), new valueObjects.FullDate('01/01/2000'));
 	var app2 = new oc.JobApplication(job11, jobseeker10, new oc.Resume('resume'), new valueObjects.FullDate('01/01/2000'));
 	var app3 = new oc.JobApplication(job11, jobseeker11, new oc.Resume('resume'), new valueObjects.FullDate('01/01/2000'));
-	oc.jobApplicationList.append(app1);
-	oc.jobApplicationList.append(app2);
-	oc.jobApplicationList.append(app3);
+	var processedApp1 = new oc.ProcessedApplication(app1, app1.isValidApplication());
+	var processedApp2 = new oc.ProcessedApplication(app2, app2.isValidApplication());
+	var processedApp3 = new oc.ProcessedApplication(app3, app3.isValidApplication());
+	oc.processedApplicationList.append(processedApp1);
+	oc.processedApplicationList.append(processedApp2);
+	oc.processedApplicationList.append(processedApp3);
 
 
 	it("can see how many jobs have been posted", function() {

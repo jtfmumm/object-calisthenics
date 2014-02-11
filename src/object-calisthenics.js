@@ -53,13 +53,13 @@ var oc = (function() {
 	Employer.prototype.listJobs = function(format) {
 		var report = new reports.Report("Job Title", "Employer");
 		var filters = new reports.FilterList(this);
-		postedJobsList.addLines(report, filters);
+		postedJobsList.addToReport(report, filters);
 		return report.display(format);
 	};
 	Employer.prototype.listJobSeekersWhoApplied = function(format) {		
 		var report = new reports.Report("Name", "Job Title", "Employer", "Date");
 		var filters = new reports.FilterList();
-		jobApplicationList.addLines(report, filters);
+		processedApplicationList.addToReport(report, filters);
 		return report.display(format);
 	};
 	Employer.prototype.equals = function(otherEmployer) {
@@ -86,10 +86,10 @@ var oc = (function() {
 		this.employer.display(thisReport);
 	};
 	PostedJob.prototype.succeededApplicationCount = function() {
-		return jobApplicationList.countSuccessesByJob(this);
+		return processedApplicationList.countSuccessesByJob(this);
 	};
 	PostedJob.prototype.failedApplicationCount = function() {
-		return jobApplicationList.countFailuresByJob(this);
+		return processedApplicationList.countFailuresByJob(this);
 	};
 	PostedJob.prototype.isValidApplication = function(application) {
 		return this.job.isValidApplication(application);
@@ -129,26 +129,29 @@ var oc = (function() {
 	} 
 	JobSeeker.prototype.applyToJob = function(job, resume) {
 		var thisDate = new valueObjects.FullDate(utilities.generateDate());
-		var thisResume = resume || new Resume();
-		var thisApplication = new JobApplication(job, this, thisResume, thisDate);
-		jobApplicationList.append(thisApplication);
+		if (resume == null || this.ownResumes().passesFilter(resume)) {
+			var thisResume = resume || nullResume;
+			var thisApplication = new JobApplication(job, this, thisResume, thisDate);
+			var processed = new ProcessedApplication(thisApplication, thisApplication.isValidApplication());
+			processedApplicationList.append(processed);
+		}
 	};
 	JobSeeker.prototype.listJobs = function(format) {
 		var report = new reports.Report("Job Title", "Employer");
 		var filters = new reports.FilterList();
-		postedJobsList.addLines(report, filters);
+		postedJobsList.addToReport(report, filters);
 		return report.display(format);
 	};
 	JobSeeker.prototype.listSavedJobs = function(format) {
 		var report = new reports.Report("Job Title", "Employer");
 		var filters = new reports.FilterList(this);
-		savedJobsList.addLines(report, filters);
+		savedJobsList.addToReport(report, filters);
 		return report.display(format);
 	};
 	JobSeeker.prototype.listJobsAppliedTo = function(format) {
 		var report = new reports.Report("Name", "Job Title", "Employer", "Date");
 		var filters = new reports.FilterList(this);
-		jobApplicationList.addLines(report, filters);
+		processedApplicationList.addToReport(report, filters);
 		return report.display(format);
 	};
 	JobSeeker.prototype.equals = function(otherJobSeeker) {
@@ -181,7 +184,8 @@ var oc = (function() {
 			list.append(this);
 	};
 	Resume.prototype.passesFilter = function(filter) {
-		return utilities.hasValueObject(this, filter);
+		return this.resume === filter ||
+			this.jobSeeker.equals(filter);
 	};
 	Resume.prototype.display = function(thisReport) {
 		thisReport.addEntry(this.resume);
@@ -195,6 +199,7 @@ var oc = (function() {
 			&& this.jobSeeker === otherResume.jobSeeker;
 	};
 
+	var nullResume = new Resume();
 	var resumeList = new valueObjects.ObjectList();
 
 
@@ -223,39 +228,60 @@ var oc = (function() {
 		return this.job.isValidApplication(this);
 	};
 
-	var jobApplicationList = {
-		true: [],
-		false: [],
-		append: function(application) {
-			var isSuccessful = application.isValidApplication();
-			this[isSuccessful].push(application);
-		},
-		countSuccessesByJob: function(job) {
-			var count = 0;
-			var filter = job;
-			this[true].forEach(function(application) {
-				if (application.passesFilter(filter))
-					count++;
-			});
-			return new valueObjects.Count(count);
-		},
-		countFailuresByJob: function(job) {
-			var count = 0;
-			var filter = job;
-			this[false].forEach(function(application) {
-				if (application.passesFilter(filter))
-					count++;
-			});
-			return new valueObjects.Count(count);
-		},
-		addLines: function(report, filterList) {
-			this[true].forEach(function(obj) {
-				if (filterList.filter(obj)) 
-					report.addLine(obj);
-			});
-		}
+	function ProcessedApplication(application, isSuccessful) {
+		this.application = application;
+		this.success = isSuccessful;
+	}	
+	ProcessedApplication.prototype.passesFilter = function(filter) {
+		return utilities.hasValueObject(this.application, filter);
+	};
+	ProcessedApplication.prototype.display = function(thisReport) {
+		this.application.display(thisReport);
+	};	
+	ProcessedApplication.prototype.isSuccessful = function() {
+		return this.success;
+	};
+	ProcessedApplication.prototype.equals = function(otherProcessedApplication) {
+		return (otherProcessedApplication.constructor === ProcessedApplication) 
+			&& (this.application.equals(otherProcessedApplication.application));
 	};
 
+
+	var processedApplicationList = new valueObjects.ObjectList();
+	processedApplicationList.successful = function() {
+		return this.list.filter(function(application) {
+			return application.isSuccessful();
+		});
+	};
+	processedApplicationList.failed = function() {
+		return this.list.filter(function(application) {
+			return !application.isSuccessful();
+		});
+	};
+	processedApplicationList.addToReport = function(report, filterList) {
+		this.successful().forEach(function(application) {
+			if (filterList.filter(application)) 
+				report.addToReport(application);
+		});
+	};
+	processedApplicationList.countSuccessesByJob = function(job) {
+			var count = 0;
+			var filter = job;
+			this.successful().forEach(function(application) {
+				if (application.passesFilter(filter))
+					count++;
+			});
+			return new valueObjects.Count(count);
+	};
+	processedApplicationList.countFailuresByJob = function(job) {
+			var count = 0;
+			var filter = job;
+			this.failed().forEach(function(application) {
+				if (application.passesFilter(filter))
+					count++;
+			});
+			return new valueObjects.Count(count);
+	};
 
 
 //TheLadders
@@ -266,7 +292,7 @@ var oc = (function() {
 		listJobApplicationsByDate: function(format) {
 			var report = new reports.Report('Name', 'Job Title', 'Employer', 'Date');
 			var filters = new reports.FilterList();
-			jobApplicationList.addLines(report, filters);
+			processedApplicationList.addToReport(report, filters);
 			return report.display(format);			
 		},
 		listAggregateJobNumbers: function(format) {
@@ -274,14 +300,26 @@ var oc = (function() {
 			var filters = new reports.FilterList();
 			postedJobsList.forEach(function(postedJob) {
 				var count = postedJob.succeededApplicationCount();
-				report.addLine(postedJob, count);
+				report.addToReport(postedJob, count);
 			});
 			return report.display(format);
 		},
 		listJobApplicationsForOneDate: function(format, fullDate) {
 			var report = new reports.Report('Name', 'Job Title', 'Employer', 'Date');
 			var filters = new reports.FilterList(fullDate);
-			jobApplicationList.addLines(report, filters);
+			processedApplicationList.addToReport(report, filters);
+			return report.display(format);					
+		},
+		listJobApplicationsForOneJob: function(format, job) {
+			var report = new reports.Report('Name', 'Job Title', 'Employer', 'Date');
+			var filters = new reports.FilterList(job);
+			processedApplicationList.addToReport(report, filters);
+			return report.display(format);					
+		},
+		listJobApplicationsForOneJobAndDate: function(format, job, fullDate) {
+			var report = new reports.Report('Name', 'Job Title', 'Employer', 'Date');
+			var filters = new reports.FilterList(job, fullDate);
+			processedApplicationList.addToReport(report, filters);
 			return report.display(format);					
 		},
 		listJobApplicationsSuccessesAndFailures: function(format, fullDate) {
@@ -290,7 +328,7 @@ var oc = (function() {
 			postedJobsList.forEach(function(postedJob) {
 				var succeededCount = postedJob.succeededApplicationCount();
 				var failedCount = postedJob.failedApplicationCount();
-				report.addLine(postedJob, succeededCount, failedCount);
+				report.addToReport(postedJob, succeededCount, failedCount);
 			})
 			return report.display(format);	
 		}
@@ -304,12 +342,13 @@ var oc = (function() {
 		Employer: Employer,
 		JobSeeker: JobSeeker,
 		JobApplication: JobApplication,
+		ProcessedApplication: ProcessedApplication,
 		Resume: Resume,
 		TheLadders: TheLadders,
 		//For testing
 		Job: Job,
 		PostedJob: PostedJob,
-		jobApplicationList: jobApplicationList,
+		processedApplicationList: processedApplicationList,
 		postedJobsList: postedJobsList
 	}
 
