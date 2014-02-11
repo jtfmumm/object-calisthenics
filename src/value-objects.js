@@ -12,12 +12,19 @@ var valueObjects = (function() {
 	ValueObject.prototype.display = function(report) {
 		report.addEntry(this.data);
 	};
+
 	function Name(name) {
 		ValueObject.call(this, name);
 	}
 	Name.prototype = Object.create(ValueObject.prototype);
 	Name.prototype.constructor = Name;
-
+	
+	function Title(title) {
+		ValueObject.call(this, title);
+	}
+	Title.prototype = Object.create(ValueObject.prototype);
+	Title.prototype.constructor = Title;
+	
 	function JobTitle(title) {
 		ValueObject.call(this, title);
 	}
@@ -98,6 +105,7 @@ var valueObjects = (function() {
 		Name: Name,
 		FullName: FullName,
 		JobTitle: JobTitle,
+		Title: Title,
 		Uid: Uid,
 		Count: Count,
 		FullDate: FullDate,

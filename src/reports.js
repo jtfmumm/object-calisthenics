@@ -15,6 +15,8 @@ var reports = (function() {
 		return this.list.every(obj.passesFilter.bind(obj));
 	};
 
+	nullFilterList = new FilterList();
+
 	function Row() {
 		this.data = [];
 		for (var i = 0; i < arguments.length; i++)
@@ -36,7 +38,7 @@ var reports = (function() {
 			fieldNamesRow.append(new valueObjects.Name(arguments[i]));
 		this.rows.push(fieldNamesRow);
 	}	
-	Report.prototype.addToReport = function() {
+	Report.prototype.append = function() {
 		var row = new Row();
 		for (var i = 0; i < arguments.length; i++) 
 			row.append(arguments[i]);
@@ -92,6 +94,7 @@ var reports = (function() {
 
 	var reports = {
 		FilterList: FilterList,
+		nullFilterList: nullFilterList,
 		Report: Report,
 		CsvReport: CsvReport,
 		HtmlReport: HtmlReport
